@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewEchoServer(ctn container.Container) *echo.Echo {
+func NewEchoServer(ctn *container.Container) *echo.Echo {
 	server := echo.New()
 
 	server.Logger.SetLevel(99)
