@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/GrooveDEF/golang-container-kit/pkg/metrics"
-	"github.com/GrooveDEF/golang-container-kit/pkg/metrics/prometheus"
+	"github.com/definancialbr/golang-container-kit/pkg/metrics"
+	"github.com/definancialbr/golang-container-kit/pkg/metrics/prometheus"
 	echo "github.com/labstack/echo/v4"
 )
 

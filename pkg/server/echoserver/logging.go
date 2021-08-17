@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/GrooveDEF/golang-container-kit/pkg/logging"
+	"github.com/definancialbr/golang-container-kit/pkg/logging"
 )
 
 func LoggingMiddleware(log logging.LoggingService) echo.MiddlewareFunc {

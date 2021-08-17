@@ -1,7 +1,7 @@
 package echoserver
 
 import (
-	"github.com/GrooveDEF/golang-container-kit/pkg/container"
+	"github.com/definancialbr/golang-container-kit/pkg/container"
 	"github.com/labstack/echo/v4"
 )
 
