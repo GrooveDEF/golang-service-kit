@@ -24,14 +24,14 @@ func NewEchoServer(ctn *container.Container) *echo.Echo {
 	livenessHandler := ctn.Probes.LivenessHandler()
 
 	server.GET("/healthz", func(ctx echo.Context) error {
-		livenessHandler.ServeHTTP(ctx.Response(), ctx.Request())
+		livenessHandler(ctx.Response(), ctx.Request())
 		return nil
 	})
 
 	readinessHandler := ctn.Probes.ReadinessHandler()
 
 	server.GET("/healthz/ready", func(ctx echo.Context) error {
-		readinessHandler.ServeHTTP(ctx.Response(), ctx.Request())
+		readinessHandler(ctx.Response(), ctx.Request())
 		return nil
 	})
 

@@ -44,12 +44,15 @@ func LoggingMiddleware(log logging.LoggingService) echo.MiddlewareFunc {
 				fields = append(fields, "request_id", id)
 			}
 
+			if err != nil {
+				fields = append(fields, "error", err.Error())
+			}
 			n := res.Status
 			switch {
 			case n >= 500:
-				log.Error(err.Error(), fields...)
+				log.Error("Server error", fields...)
 			case n >= 400:
-				log.Warn(err.Error(), fields...)
+				log.Warn("Bad request", fields...)
 			case n >= 300:
 				log.Error("Redirection", fields...)
 			default:
