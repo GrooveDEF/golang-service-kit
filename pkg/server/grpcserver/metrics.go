@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	grpcNamespace        = "grpc"
-	grpcRequestsCount    = "requests_total"
-	grpcRequestsDuration = "request_duration_seconds"
+	grpcNamespace              = "grpc"
+	grpcUnaryRequestsCount     = "unary_requests_total"
+	grpcUnaryRequestsDuration  = "unary_request_duration_seconds"
+	grpcStreamRequestsCount    = "stream_requests_total"
+	grpcStreamRequestsDuration = "stream_request_duration_seconds"
 )
 
 var (
@@ -41,14 +43,14 @@ var (
 func MetricsInterceptor(metrics metrics.MetricService) grpc.UnaryServerInterceptor {
 
 	grpcRequests := metrics.Counter(
-		prometheus.WithName(grpcRequestsCount),
+		prometheus.WithName(grpcUnaryRequestsCount),
 		prometheus.WithHelp("Number of unary operations"),
 		prometheus.WithLabels([]string{"status", "method"}),
 	)
 
 	grpcDuration := metrics.Histogram(
 		prometheus.WithNamespace(grpcNamespace),
-		prometheus.WithName(grpcRequestsDuration),
+		prometheus.WithName(grpcUnaryRequestsDuration),
 		prometheus.WithBuckets(durationBuckets),
 		prometheus.WithHelp("Spend time by processing an unary request"),
 		prometheus.WithLabels([]string{"method"}),
@@ -67,5 +69,37 @@ func MetricsInterceptor(metrics metrics.MetricService) grpc.UnaryServerIntercept
 
 		grpcRequests.WithLabelValues(status, path).Add(1)
 		return resp, err
+	}
+}
+
+func MetricsStreamInterceptor(metrics metrics.MetricService) grpc.StreamServerInterceptor {
+
+	grpcRequests := metrics.Counter(
+		prometheus.WithName(grpcStreamRequestsCount),
+		prometheus.WithHelp("Number of stream operations"),
+		prometheus.WithLabels([]string{"status", "method"}),
+	)
+
+	grpcDuration := metrics.Histogram(
+		prometheus.WithNamespace(grpcNamespace),
+		prometheus.WithName(grpcStreamRequestsDuration),
+		prometheus.WithBuckets(durationBuckets),
+		prometheus.WithHelp("Spend time by processing an stream request"),
+		prometheus.WithLabels([]string{"method"}),
+	)
+
+	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		path := info.FullMethod
+		start := time.Now()
+		requestDuration := grpcDuration.WithLabelValues(path)
+		err := handler(srv, ss)
+		requestDuration.Observe(time.Since(start).Seconds())
+		status := "ok"
+		if err != nil {
+			status = "err"
+		}
+
+		grpcRequests.WithLabelValues(status, path).Add(1)
+		return err
 	}
 }
